@@ -69,4 +69,38 @@ remove_outliers_iqr <- function(data, multiplier = 1.5) {
   cleaned_data <- data[!outlier_rows, ]
   
   return(cleaned_data)
+  
+}
+
+one_hot_encode <- function(df, drop_first = FALSE) {
+  # Identify categorical columns (factor or character)
+  cat_cols <- names(df)[sapply(df, function(x) is.factor(x) || is.character(x))]
+  
+  # If no categorical variables, return original df
+  if (length(cat_cols) == 0) {
+    return(df)
+  }
+  
+  # Convert characters to factors
+  df[cat_cols] <- lapply(df[cat_cols], as.factor)
+  
+  # Build formula dynamically
+  if (drop_first) {
+    formula <- as.formula(paste("~", paste(cat_cols, collapse = " + "), "- 1"))
+  } else {
+    formula <- as.formula(paste("~", paste(cat_cols, collapse = " + ")))
+  }
+  
+  # Create design matrix
+  dummies <- model.matrix(formula, data = df)
+  
+  # Remove intercept if present
+  dummies <- dummies[, colnames(dummies) != "(Intercept)", drop = FALSE]
+  
+  # Combine with non-categorical columns
+  num_df <- df[ , !(names(df) %in% cat_cols), drop = FALSE]
+  
+  final_df <- cbind(num_df, dummies)
+  
+  return(as.data.frame(final_df))
 }

@@ -1,0 +1,12 @@
+Function                                   Purpose                                      Elastic Net   Random Forest     XGBoost
+------------------------------------------------------------------------------------------------------------------------------------
+split_data()                               Train/test split (prevents leakage)           Required      Required        Required
+fit_outlier_handler() / apply_outlier()    Detect & cap numeric outliers                 Recommended   Not needed      Recommended
+fit_imputer() / apply_imputer()            Impute missing numeric & categorical values   Required      Required        Recommended
+fit_encoder() / apply_encoder()            One-hot encode categorical predictors         Required      Required        Required
+fit_zv_filter() / apply_zv_filter()         Remove zero / near-zero variance features    Required      Recommended     Recommended
+fit_scaler() / apply_scaler()               Standardize numeric predictors               Required      Not needed      Not needed
+compute_class_weights()                    Compute class weights for imbalance           Recommended   Recommended     Recommended
+
+
+The idea I am thinking about is put functions for data splitting, handling outliers, etc., into a separate file, e.g. with a name preprocessing.R and then call the functions one-by-one based on the model.
