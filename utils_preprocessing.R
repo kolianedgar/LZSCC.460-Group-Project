@@ -70,7 +70,7 @@ apply_outlier_handler <- function(df, bounds) {
   return(df)
 }
 
-fit_imputer <- function(df, gender_col = "gender") {
+fit_imputer <- function(df, gender_col = "Gender") {
   # Ensure gender is factor
   df[[gender_col]] <- as.factor(df[[gender_col]])
   
@@ -127,35 +127,26 @@ apply_imputer <- function(df, imputer) {
 }
 
 fit_encoder <- function(df) {
-  # Identify categorical columns
   cat_cols <- names(df)[sapply(df, function(x) is.factor(x) || is.character(x))]
   
-  # Convert character columns to factors
   df[cat_cols] <- lapply(df[cat_cols], as.factor)
   
-  # Build formula for model.matrix
-  if (length(cat_cols) > 0) {
-    formula <- as.formula(paste("~", paste(cat_cols, collapse = " + ")))
-    design_mat <- model.matrix(formula, data = df)
-    
-    # Remove intercept
-    design_mat <- design_mat[, colnames(design_mat) != "(Intercept)", drop = FALSE]
-    
-    dummy_cols <- colnames(design_mat)
-  } else {
-    dummy_cols <- character(0)
-  }
+  formula <- as.formula(paste("~", paste(cat_cols, collapse = " + ")))
+  mm <- model.matrix(formula, data = df)
+  dummy_cols <- colnames(mm)[colnames(mm) != "(Intercept)"]
   
   list(
     cat_cols   = cat_cols,
+    levels     = lapply(df[cat_cols], levels),
     dummy_cols = dummy_cols
   )
 }
 
 apply_encoder <- function(df, encoder) {
-  # Convert character columns to factors using training levels
+  
+  # Enforce training factor levels
   for (col in encoder$cat_cols) {
-    df[[col]] <- factor(df[[col]], levels = levels(df[[col]]))
+    df[[col]] <- factor(df[[col]], levels = encoder$levels[[col]])
   }
   
   # Generate dummy variables
@@ -166,24 +157,28 @@ apply_encoder <- function(df, encoder) {
     # Remove intercept
     dummies <- dummies[, colnames(dummies) != "(Intercept)", drop = FALSE]
     
-    # Ensure same dummy columns as training
+    # Add missing dummy columns
     missing_cols <- setdiff(encoder$dummy_cols, colnames(dummies))
     if (length(missing_cols) > 0) {
-      dummies <- cbind(dummies,
-                       matrix(0, nrow = nrow(dummies), ncol = length(missing_cols),
-                              dimnames = list(NULL, missing_cols)))
+      dummies <- cbind(
+        dummies,
+        matrix(
+          0,
+          nrow = nrow(dummies),
+          ncol = length(missing_cols),
+          dimnames = list(NULL, missing_cols)
+        )
+      )
     }
     
-    # Drop extra columns and reorder
+    # Drop extras & reorder
     dummies <- dummies[, encoder$dummy_cols, drop = FALSE]
   }
   
-  # Remove original categorical columns
+  # Drop original categorical columns
   num_df <- df[, !(names(df) %in% encoder$cat_cols), drop = FALSE]
   
-  # Combine numeric + encoded categorical
   final_df <- cbind(num_df, dummies)
-  
   as.data.frame(final_df)
 }
 
