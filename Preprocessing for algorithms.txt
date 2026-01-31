@@ -9,4 +9,29 @@ fit_scaler() / apply_scaler()               Standardize numeric predictors      
 compute_class_weights()                    Compute class weights for imbalance           Recommended   Recommended     Recommended
 
 
-The idea I am thinking about is put functions for data splitting, handling outliers, etc., into a separate file, e.g. with a name preprocessing.R and then call the functions one-by-one based on the model.
+I put helper functions in a file called utils_preprocessing.R, which is eventually going to be renamed into 01_preprocessing.R.
+
+Also thought about performance/loss metrics that can be used for evaluation of models:
+
+1. PR-AUC Score
+	i. Area Under the Precision-Recall Curve
+	ii. Better for severely imbalanced datasets
+2. Macro-F1
+	i. Treats classes equally
+	ii. Better than accuracy which can be misleading
+	iii. Better for imbalanced datasets
+3. Binary Cross-Entropy (Log-Loss)
+	i. Shows probabilistic sharpness
+	ii. Shows if the probabilities are statistically consistent
+4. Brier Score
+	i. Can be decomposed into Calibration Error and Refinement (Resolution)
+	ii. Evaluates absolute accuracy
+	iii. Complements Log-Loss (Binary Cross-Entropy)
+
+
+Next steps:
+
+1. Wait for the groupmates to finish their versions
+2. Come to a consensus and push the final decision to the main branch after making sure it works
+3. Discuss on who is going to implement which model
+4. Start working on Literature Review
