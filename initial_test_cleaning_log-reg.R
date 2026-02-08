@@ -14,6 +14,8 @@ source("utils_preprocessing.R")
 
 marketing_data <- read.csv("marketing.csv")
 
+marketing_data <- marketing_data %>% 
+  select(-CustomerID)
 #----------------------------
 # Split data
 #----------------------------
@@ -40,15 +42,15 @@ y_test  <- as.factor(test_data$Conversion)
 #   (fit on train, apply to both)
 #---------------------------------
 
-# Get rid of Outliers
-outlier_handler <- fit_outlier_handler(X_train)
-X_train <- apply_outlier_handler(X_train, outlier_handler)
-X_test  <- apply_outlier_handler(X_test,  outlier_handler)
-
 # Impute Missing Values
 imputer <- fit_imputer(X_train)
 X_train <- apply_imputer(X_train, imputer)
 X_test  <- apply_imputer(X_test,  imputer)
+
+# Get rid of Outliers
+outlier_handler <- fit_outlier_handler(X_train)
+X_train <- apply_outlier_handler(X_train, outlier_handler)
+X_test  <- apply_outlier_handler(X_test,  outlier_handler)
 
 # Encode Categorical Variables
 encoder <- fit_encoder(X_train)
@@ -69,9 +71,11 @@ X_test  <- apply_scaler(X_test,  scaler)
 X_train <- as.matrix(X_train)
 X_test  <- as.matrix(X_test)
 
-#-----------------------------
+#-----------------------------------
 # Class weights
-#-----------------------------
+#   Minority class gets more weight
+#   Majority class gets less weight
+#-----------------------------------
 
 class_weights <- compute_class_weights(y_train)
 obs_weights   <- class_weights[as.character(y_train)]
