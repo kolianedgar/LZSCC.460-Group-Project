@@ -23,39 +23,24 @@ When called, the function:
 3. Optionally filters invalid values in a specified column
 4. Splits data into train / test sets
 5. Fits preprocessing steps on training data only:
-
-&nbsp;	- missing-value imputation
-
-&nbsp;	- outlier handling
-
-&nbsp;	- categorical encoding
-
-&nbsp;	- (optional) feature scaling
-
-6\. Applies the same preprocessing to test data
-
-7\. Returns ready-to-use training and test sets
-
-
+    i. missing-value imputation
+   ii. outlier handling
+   iii. categorical encoding
+   iv. (optional) feature scaling
+6. Applies the same preprocessing to test data
+7. Returns ready-to-use training and test sets
 
 All preprocessing logic lives inside this function.
 
-
-
 ##### **How to load it**
 
-
-
 In your modeling script, do:
-
 
 ```r
 source("01_preprocessing.R")
 ```
 
-
 Make sure these utility files exist (they are sourced internally):
-
 
 ```r
 utils/utils_preprocessing.R
@@ -63,9 +48,7 @@ utils/utils_preprocessing.R
 utils/utils.R
 ```
 
-
 ##### **Function signature (what you can pass in)**
-
 
 ```r
 preprocess_data(
@@ -82,31 +65,23 @@ preprocess_data(
 )
 ```
 
-
 ###### **Required arguments**
 
-1. data – data frame to preprocess
-2. target\_col – name of the target variable (string)
-
-
+1. `data` – data frame to preprocess
+2. `target_col` – name of the target variable (string)
 
 ###### **Optional arguments**
 
-1. id\_cols – ID columns to drop (string or character vector)
-2. filter\_col – column to apply value filtering on
-3. filter\_min / filter\_max – numeric bounds for filtering
-4. train\_prop – train/test split ratio (default 80/20)
-5. stratify – whether to stratify by target (default TRUE)
-6. seed – random seed for reproducibility
-7. model\_type – model the data is prepared for:
-
-&nbsp;	- "glmnet" → elastic-net logistic regression
-
-&nbsp;	- "rf" → random forest
-
-&nbsp;	- "xgb" → XGBoost
-
-
+1. `id_cols` – ID columns to drop (string or character vector)
+2. `filter_col` – column to apply value filtering on
+3. `filter_min` / `filter_max` – numeric bounds for filtering
+4. `train_prop` – train/test split ratio (default 80/20)
+5. `stratify` – whether to stratify by target (default TRUE)
+6. `seed` – random seed for reproducibility
+7. `model_type` – model the data is prepared for:
+    i. "glmnet" → elastic-net logistic regression
+    ii. "rf" → random forest
+    iii. "xgb" → XGBoost
 
 ##### **Most common usage (example)**
 
