@@ -6,8 +6,8 @@ library(dplyr)
 library(glmnet)
 library(caret)
 
-source("utils_preprocessing.R")
-source("utils.R")
+source("utils/utils_preprocessing.R")
+source("utils/utils.R")
 
 #--------------------------------
 # Change the working directory
