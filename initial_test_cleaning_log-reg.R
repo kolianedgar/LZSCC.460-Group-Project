@@ -7,18 +7,46 @@ library(glmnet)
 library(caret)
 
 source("utils_preprocessing.R")
+source("utils.R")
 
-#----------------
+#--------------------------------
+# Change the working directory
+#   to where the file is located
+#--------------------------------
+
+set_script_wd()
+
+#---------------------------------------
 # Read data
-#----------------
+#   Note: Make sure that the file is in 
+#     the same directory as the script
+#---------------------------------------
 
 marketing_data <- read.csv("marketing.csv")
 
+#----------------------
+# Drop duplicate rows
+#----------------------
+
+marketing_data <- drop_duplicates(marketing_data)
+
+#-----------------------
+# Drop the Customer ID
+#-----------------------
+
 marketing_data <- marketing_data %>% 
   select(-CustomerID)
+
 #----------------------------
+# Filter out invalid numbers
+#----------------------------
+
+marketing_data <- marketing_data %>%
+  filter(ConversionRate >= 0, ConversionRate <= 1)
+
+#-------------
 # Split data
-#----------------------------
+#-------------
 
 split <- split_data(
   marketing_data,
@@ -57,11 +85,6 @@ encoder <- fit_encoder(X_train)
 X_train <- apply_encoder(X_train, encoder)
 X_test  <- apply_encoder(X_test,  encoder)
 
-# Fit and Apply a Zero Variance Filter
-zv_filter <- fit_zv_filter(X_train)
-X_train <- apply_zv_filter(X_train, zv_filter)
-X_test  <- apply_zv_filter(X_test,  zv_filter)
-
 # Fit and Apply a Z-score Scaler (Mean: 0, Std. Dev.: 1)
 scaler <- fit_scaler(X_train)
 X_train <- apply_scaler(X_train, scaler)
@@ -79,83 +102,3 @@ X_test  <- as.matrix(X_test)
 
 class_weights <- compute_class_weights(y_train)
 obs_weights   <- class_weights[as.character(y_train)]
-
-#-----------------------------------
-# Elastic-net CV (alpha + lambda)
-#-----------------------------------
-
-alpha_grid <- seq(0, 1, by = 0.1)
-set.seed(123)
-
-cv_models <- lapply(alpha_grid, function(a) {
-  cv.glmnet(
-    x = X_train,
-    y = y_train,
-    family = "binomial",
-    alpha = a,
-    weights = obs_weights,
-    standardize = FALSE,
-    keep = TRUE
-  )
-})
-
-cv_errors <- sapply(cv_models, function(m) min(m$cvm))
-best_idx  <- which.min(cv_errors)
-
-best_alpha  <- alpha_grid[best_idx]
-best_lambda <- cv_models[[best_idx]]$lambda.min
-best_cv <- cv_models[[best_idx]]
-
-lambda_idx <- which(best_cv$lambda == best_lambda)
-
-cv_probs <- best_cv$fit.preval[, lambda_idx]
-cv_probs <- as.numeric(cv_probs)
-
-#-----------------------------------
-# Threshold Tuning
-#-----------------------------------
-
-tune_threshold <- function(probs, y, grid = seq(0.05, 0.95, by = 0.01)) {
-  scores <- sapply(grid, function(t) {
-    preds <- factor(ifelse(probs > t, "1", "0"), levels = levels(y))
-    confusionMatrix(preds, y, positive = "1")$byClass["Balanced Accuracy"]
-  })
-  grid[which.max(scores)]
-}
-
-best_threshold <- tune_threshold(cv_probs, y_train)
-
-#-----------------------------------
-# Final model
-#-----------------------------------
-
-final_model <- glmnet(
-  x = X_train,
-  y = y_train,
-  family = "binomial",
-  alpha = best_alpha,
-  lambda = best_lambda,
-  weights = obs_weights,
-  standardize = FALSE
-)
-
-#-----------------------------------
-# Test evaluation (ONLY here)
-#-----------------------------------
-
-prob_test <- predict(final_model, X_test, type = "response")
-
-pred_test <- factor(
-  ifelse(prob_test > best_threshold, "1", "0"),
-  levels = levels(y_train)
-)
-
-cm <- confusionMatrix(
-  pred_test,
-  y_test,
-  positive = "1"
-)
-
-print(cm)
-
-print(best_threshold)

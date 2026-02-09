@@ -1,6 +1,13 @@
 library(dplyr)
 library(caret)
 
+drop_duplicates <- function(df) {
+  
+  df <- distinct(df)
+  return(df)
+  
+}
+
 split_data <- function(df, target, prop = 0.8, stratify = TRUE, seed = NULL) {
   # df: data.frame containing predictors + target
   # target: name of target column (string)
@@ -34,9 +41,12 @@ split_data <- function(df, target, prop = 0.8, stratify = TRUE, seed = NULL) {
   )
 }
 
+
 fit_outlier_handler <- function(df, k = 1.5) {
-  # Select numeric columns only
-  num_cols <- names(df)[sapply(df, is.numeric)]
+  num_cols <- setdiff(
+    names(df)[sapply(df, is.numeric)],
+    "ConversionRate"
+  )
   
   bounds <- lapply(num_cols, function(col) {
     x <- df[[col]]
@@ -53,21 +63,20 @@ fit_outlier_handler <- function(df, k = 1.5) {
   })
   
   names(bounds) <- num_cols
-  
-  return(bounds)
+  bounds
 }
 
 apply_outlier_handler <- function(df, bounds) {
   for (col in names(bounds)) {
     if (!col %in% names(df)) next
     
-    lower <- bounds[[col]]$lower
-    upper <- bounds[[col]]$upper
-    
-    df[[col]] <- pmin(pmax(df[[col]], lower), upper)
+    df[[col]] <- pmin(
+      pmax(df[[col]], bounds[[col]]$lower),
+      bounds[[col]]$upper
+    )
   }
   
-  return(df)
+  df
 }
 
 fit_imputer <- function(df, gender_col = "Gender") {
@@ -180,36 +189,6 @@ apply_encoder <- function(df, encoder) {
   
   final_df <- cbind(num_df, dummies)
   as.data.frame(final_df)
-}
-
-fit_zv_filter <- function(df, freq_cutoff = 0.95) {
-  # Keep only numeric columns
-  num_df <- df[, sapply(df, is.numeric), drop = FALSE]
-  
-  keep_cols <- sapply(num_df, function(x) {
-    if (var(x, na.rm = TRUE) == 0) {
-      return(FALSE)
-    }
-    freq_ratio <- max(table(x)) / length(x)
-    freq_ratio < freq_cutoff
-  })
-  
-  list(
-    keep_columns = names(num_df)[keep_cols],
-    removed_columns = names(num_df)[!keep_cols],
-    freq_cutoff = freq_cutoff
-  )
-}
-
-apply_zv_filter <- function(df, zv_object) {
-  # Keep non-numeric columns untouched
-  non_num <- df[, !sapply(df, is.numeric), drop = FALSE]
-  
-  # Keep only numeric columns seen during fitting
-  num <- df[, intersect(zv_object$keep_columns, names(df)), drop = FALSE]
-  
-  # Recombine
-  cbind(non_num, num)
 }
 
 fit_scaler <- function(df) {
