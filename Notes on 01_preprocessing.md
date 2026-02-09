@@ -49,25 +49,25 @@ All preprocessing logic lives inside this function.
 In your modeling script, do:
 
 
-
-source("01\_preprocessing.R")
-
+```r
+source("01_preprocessing.R")
+```
 
 
 Make sure these utility files exist (they are sourced internally):
 
 
-
+```r
 utils/utils\_preprocessing.R
 
 utils/utils.R
-
+```
 
 
 ##### **Function signature (what you can pass in)**
 
 
-
+```r
 preprocess\_data(
 
 &nbsp; data,
@@ -91,21 +91,17 @@ preprocess\_data(
 &nbsp; model\_type = c("glmnet", "rf", "xgb")
 
 )
-
+```
 
 
 ###### **Required arguments**
-
-
 
 1. data – data frame to preprocess
 2. target\_col – name of the target variable (string)
 
 
 
-Optional arguments
-
-
+###### **Optional arguments**
 
 1. id\_cols – ID columns to drop (string or character vector)
 2. filter\_col – column to apply value filtering on
@@ -125,12 +121,9 @@ Optional arguments
 
 ##### **Most common usage (example)**
 
-
-
 Equivalent to the old preprocessing script:
 
-
-
+```r
 prep <- preprocess\_data(
 
 &nbsp; data        = marketing\_data,
@@ -148,80 +141,51 @@ prep <- preprocess\_data(
 &nbsp; model\_type = "glmnet"
 
 )
-
+```
 
 
 ##### **How to access outputs**
 
-
-
 The function returns a list.
 
-
-
+```r
 X\_train <- prep$X\_train
 
 y\_train <- prep$y\_train
-
-
 
 X\_test  <- prep$X\_test
 
 y\_test  <- prep$y\_test
 
-
-
 obs\_weights <- prep$obs\_weights
-
-
+```
 
 You can inspect everything with:
 
-
-
+```r
 names(prep)
 
 str(prep)
-
-
+```
 
 ##### **Model-specific behavior (important)**
 
-
-
-Model type	Encoding	Scaling		Matrix output
-
-glmnet		  Yes		  Yes		   Yes
-
-rf		  Yes		  No		   No
-
-xgb		  Yes		  No		   Yes
-
-
-
-
+| Model type | Encoding | Scaling | Matrix output |
+|------------|----------|---------|---------------|
+| glmnet		 | Yes		  | Yes		  | Yes           |
+| rf		     | Yes		  | No		  | No            |
+| xgb		     | Yes		  | No		  | Yes           |
 
 Outlier handling is always applied, regardless of model.
 
-
-
 ##### **Common mistakes to avoid**
 
-
-
 ❌ Forgetting to pass filter\_col (filter won’t run)
-
 ❌ Assuming scaling happens for tree models
-
 ❌ Modifying preprocessing outside the function
-
 ❌ Refitting preprocessors on test data
 
-
-
 ##### One-sentence summary
-
-
 
 Call preprocess\_data() once per model, then extract X\_train, y\_train, etc. from the returned list and fit your model.
 
