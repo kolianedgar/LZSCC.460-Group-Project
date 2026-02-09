@@ -134,8 +134,11 @@ Outlier handling is always applied, regardless of model.
 ##### **Common mistakes to avoid**
 
 ❌ Forgetting to pass filter\_col (filter won’t run)
+
 ❌ Assuming scaling happens for tree models
+
 ❌ Modifying preprocessing outside the function
+
 ❌ Refitting preprocessors on test data
 
 ##### One-sentence summary
