@@ -58,7 +58,7 @@ Make sure these utility files exist (they are sourced internally):
 
 
 ```r
-utils/utils\_preprocessing.R
+utils/utils_preprocessing.R
 
 utils/utils.R
 ```
@@ -68,28 +68,17 @@ utils/utils.R
 
 
 ```r
-preprocess\_data(
-
-&nbsp; data,
-
-&nbsp; target\_col,
-
-&nbsp; id\_cols = NULL,
-
-&nbsp; filter\_col = NULL,
-
-&nbsp; filter\_min = NULL,
-
-&nbsp; filter\_max = NULL,
-
-&nbsp; train\_prop = 0.8,
-
-&nbsp; stratify = TRUE,
-
-&nbsp; seed = 123,
-
-&nbsp; model\_type = c("glmnet", "rf", "xgb")
-
+preprocess_data(
+  data,
+  target_col,
+  id_cols = NULL,
+  filter_col = NULL,
+  filter_min = NULL,
+  filter_max = NULL,
+  train_prop = 0.8,
+  stratify = TRUE,
+  seed = 123,
+  model_type = c("glmnet", "rf", "xgb")
 )
 ```
 
@@ -125,39 +114,28 @@ Equivalent to the old preprocessing script:
 
 ```r
 prep <- preprocess\_data(
-
-&nbsp; data        = marketing\_data,
-
-&nbsp; target\_col = "Conversion",
-
-&nbsp; id\_cols    = "CustomerID",
-
-&nbsp; filter\_col = "ConversionRate",
-
-&nbsp; filter\_min = 0,
-
-&nbsp; filter\_max = 1,
-
-&nbsp; model\_type = "glmnet"
-
+  data = marketing_data,
+  target_col = "Conversion",
+  id_cols    = "CustomerID",
+  filter_col = "ConversionRate",
+  filter_min = 0,
+  filter_max = 1,
+  model_type = "glmnet"
 )
 ```
-
 
 ##### **How to access outputs**
 
 The function returns a list.
 
 ```r
-X\_train <- prep$X\_train
+X_train <- prep$X_train
+y_train <- prep$y_train
 
-y\_train <- prep$y\_train
+X_test  <- prep$X_test
+y_test  <- prep$y_test
 
-X\_test  <- prep$X\_test
-
-y\_test  <- prep$y\_test
-
-obs\_weights <- prep$obs\_weights
+obs_weights <- prep$obs_weights
 ```
 
 You can inspect everything with:
@@ -187,5 +165,5 @@ Outlier handling is always applied, regardless of model.
 
 ##### One-sentence summary
 
-Call preprocess\_data() once per model, then extract X\_train, y\_train, etc. from the returned list and fit your model.
+Call `preprocess_data()` once per model, then extract `X_train`, `y_train`, etc. from the returned list and fit your model.
 
