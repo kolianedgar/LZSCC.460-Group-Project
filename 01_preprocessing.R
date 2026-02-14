@@ -13,10 +13,6 @@ preprocess_data <- function(
   
   model_type <- match.arg(model_type)
   
-  #-----------------------------------
-  # Load libraries and utilities
-  #-----------------------------------
-  
   library(dplyr)
   library(glmnet)
   library(caret)
@@ -27,13 +23,11 @@ preprocess_data <- function(
   #----------------------
   # Drop duplicate rows
   #----------------------
-  
   data <- drop_duplicates(data)
   
   #-----------------------
   # Drop ID columns
   #-----------------------
-  
   if (!is.null(id_cols)) {
     data <- data %>% select(-all_of(id_cols))
   }
@@ -41,7 +35,6 @@ preprocess_data <- function(
   #----------------------------
   # Generic filtering step
   #----------------------------
-  
   if (!is.null(filter_col)) {
     if (!is.null(filter_min)) {
       data <- data %>% filter(.data[[filter_col]] >= filter_min)
@@ -54,7 +47,6 @@ preprocess_data <- function(
   #-------------
   # Split data
   #-------------
-  
   split <- split_data(
     data,
     target = target_col,
@@ -73,25 +65,21 @@ preprocess_data <- function(
   y_test  <- as.factor(test_data[[target_col]])
   
   #---------------------------------
-  # Preprocessing
+  # Preprocessing (fit on TRAIN)
   #---------------------------------
   
-  # Impute missing values
   imputer <- fit_imputer(X_train)
   X_train <- apply_imputer(X_train, imputer)
   X_test  <- apply_imputer(X_test,  imputer)
   
-  # Handle outliers (ALWAYS)
   outlier_handler <- fit_outlier_handler(X_train)
   X_train <- apply_outlier_handler(X_train, outlier_handler)
   X_test  <- apply_outlier_handler(X_test,  outlier_handler)
   
-  # Encode categorical variables (ALWAYS)
   encoder <- fit_encoder(X_train)
   X_train <- apply_encoder(X_train, encoder)
   X_test  <- apply_encoder(X_test,  encoder)
   
-  # Scale features (glmnet only)
   if (model_type == "glmnet") {
     scaler <- fit_scaler(X_train)
     X_train <- apply_scaler(X_train, scaler)
@@ -100,11 +88,28 @@ preprocess_data <- function(
     scaler <- NULL
   }
   
-  # Convert to matrix where required
   if (model_type %in% c("glmnet", "xgb")) {
     X_train <- as.matrix(X_train)
     X_test  <- as.matrix(X_test)
   }
+  
+  #-----------------------------------
+  # Create FULL preprocessed dataset
+  #-----------------------------------
+  
+  X_full <- data %>% select(-all_of(target_col))
+  y_full <- as.factor(data[[target_col]])
+  
+  X_full <- apply_imputer(X_full, imputer)
+  X_full <- apply_outlier_handler(X_full, outlier_handler)
+  X_full <- apply_encoder(X_full, encoder)
+  
+  if (!is.null(scaler)) {
+    X_full <- apply_scaler(X_full, scaler)
+  }
+  
+  full_processed_data <- as.data.frame(X_full)
+  full_processed_data[[target_col]] <- y_full
   
   #-----------------------------------
   # Class weights
@@ -129,6 +134,7 @@ preprocess_data <- function(
       outlier_handler = outlier_handler,
       encoder = encoder,
       scaler = scaler
-    )
+    ),
+    full_processed_data = full_processed_data
   )
 }
