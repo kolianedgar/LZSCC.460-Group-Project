@@ -368,5 +368,4 @@ correlations <- data.frame(
 correlations$Variable <- factor(correlations$Variable, levels = correlations$Variable)
 
 # Print correlation summary
-cat("\n=== Point-Biserial Correlations Summary ===\n")
 print(correlations)
