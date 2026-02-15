@@ -3,6 +3,7 @@
 #-----------------------------------
 
 library(dplyr)
+library(ggplot2)
 library(glmnet)
 library(caret)
 
@@ -31,3 +32,341 @@ prep_glmnet <- preprocess_data(
 )
 
 full_preprocessed_data <- prep_glmnet$full_processed_data
+
+#-------------------------
+# Conversion Distribution
+#-------------------------
+
+# Prepare data
+full_preprocessed_data$Conversion <- factor(full_preprocessed_data$Conversion, levels = c(0, 1), 
+                                            labels = c("No Conversion", "Conversion"))
+
+conversion_summary <- full_preprocessed_data %>%
+  group_by(Conversion) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Percentage = Count / sum(Count) * 100,
+         Label = paste0(Count, "\n(", round(Percentage, 1), "%)"))
+
+# Create plot
+ggplot(conversion_summary, aes(x = Conversion, y = Count, fill = Conversion)) +
+  geom_bar(stat = "identity", width = 0.6, color = "black", size = 0.5) +
+  geom_text(aes(label = Label), vjust = -0.5, size = 5, fontface = "bold") +
+  scale_fill_manual(values = c("No Conversion" = "#E74C3C", "Conversion" = "#27AE60")) +
+  labs(title = "Distribution of Target Variable: Conversion",
+       subtitle = paste0("Total Observations: ", sum(conversion_summary$Count)),
+       x = "Conversion Status", y = "Number of Observations") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)),
+                     limits = c(0, max(conversion_summary$Count) * 1.12)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5, color = "gray40"),
+        legend.position = "none",
+        panel.grid.major.x = element_blank())
+
+# Save plot
+ggsave("plots/target_distribution.png", width = 8, height = 6, dpi = 300, bg = "white")
+
+
+#-------------------------------
+# Campaign Channel Distribution
+#-------------------------------
+
+# Prepare data
+full_preprocessed_data$CampaignChannel <- factor(full_preprocessed_data$CampaignChannel)
+
+channel_summary <- full_preprocessed_data %>%
+  group_by(CampaignChannel) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Percentage = Count / sum(Count) * 100,
+         Label = paste0(Count, " (", round(Percentage, 1), "%)")) %>%
+  arrange(Count)
+
+channel_summary$CampaignChannel <- factor(channel_summary$CampaignChannel,
+                                          levels = channel_summary$CampaignChannel)
+
+# Create plot
+ggplot(channel_summary, aes(x = CampaignChannel, y = Count, fill = CampaignChannel)) +
+  geom_bar(stat = "identity", width = 0.7, color = "black", size = 0.5) +
+  geom_text(aes(label = Label), hjust = -0.1, size = 4, fontface = "bold") +
+  coord_flip() +
+  scale_fill_manual(values = c("PPC" = "#3498DB", "Referral" = "#E74C3C", 
+                               "SEO" = "#2ECC71", "Social Media" = "#9B59B6",
+                               "Email" = "#F39C12")) +
+  labs(title = "Distribution of Campaign Channels",
+       subtitle = paste0("Total Observations: ", sum(channel_summary$Count)),
+       x = "Campaign Channel", y = "Number of Observations") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)),
+                     limits = c(0, max(channel_summary$Count) * 1.15)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5, color = "gray40"),
+        legend.position = "none",
+        panel.grid.major.y = element_blank())
+
+# Save plot
+ggsave("plots/campaign_channel_distribution.png", width = 10, height = 6, dpi = 300, bg = "white")
+
+#-------------------------------------
+# Conversion Rate by Campaign Channel
+#-------------------------------------
+
+# Save a copy of the original Conversion before we modify it
+full_preprocessed_data$Conversion_original <- full_preprocessed_data$Conversion
+
+# Convert factor levels back to numeric 0/1
+full_preprocessed_data$Conversion_numeric <- as.numeric(full_preprocessed_data$Conversion) - 1
+
+channel_conversion <- full_preprocessed_data %>%
+  group_by(CampaignChannel) %>%
+  summarise(
+    Total = n(),
+    Conversions = sum(Conversion_numeric),
+    ConversionRate = mean(Conversion_numeric) * 100,
+    .groups = 'drop'
+  ) %>%
+  arrange(desc(ConversionRate))
+
+channel_conversion$CampaignChannel <- factor(channel_conversion$CampaignChannel,
+                                             levels = channel_conversion$CampaignChannel)
+
+# Create plot
+ggplot(channel_conversion, aes(x = CampaignChannel, y = ConversionRate, fill = CampaignChannel)) +
+  geom_bar(stat = "identity", width = 0.7, color = "black", size = 0.5) +
+  geom_text(aes(label = paste0(round(ConversionRate, 1), "%")), 
+            vjust = -0.5, size = 5, fontface = "bold") +
+  scale_fill_manual(values = c("PPC" = "#3498DB", "Referral" = "#E74C3C", 
+                               "SEO" = "#2ECC71", "Social Media" = "#9B59B6",
+                               "Email" = "#F39C12")) +
+  labs(title = "Conversion Rate by Campaign Channel",
+       subtitle = "Which channels drive the highest conversions?",
+       x = "Campaign Channel", y = "Conversion Rate (%)") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)),
+                     limits = c(0, max(channel_conversion$ConversionRate) * 1.12)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5, color = "gray40"),
+        legend.position = "none",
+        panel.grid.major.x = element_blank())
+
+# Save plot
+ggsave("plots/conversion_by_channel.png", width = 10, height = 6, dpi = 300, bg = "white")
+
+#-------------------------------
+# Campaign Type Distribution (#3)
+#-------------------------------
+
+type_summary <- full_preprocessed_data %>%
+  group_by(CampaignType) %>%
+  summarise(Count = n(), .groups = 'drop') %>%
+  mutate(Percentage = Count / sum(Count) * 100,
+         Label = paste0(Count, " (", round(Percentage, 1), "%)")) %>%
+  arrange(Count)
+
+type_summary$CampaignType <- factor(type_summary$CampaignType,
+                                    levels = type_summary$CampaignType)
+
+ggplot(type_summary, aes(x = CampaignType, y = Count, fill = CampaignType)) +
+  geom_bar(stat = "identity", width = 0.7, color = "black", size = 0.5) +
+  geom_text(aes(label = Label), hjust = -0.1, size = 4, fontface = "bold") +
+  coord_flip() +
+  scale_fill_manual(values = c("Awareness" = "#3498DB", "Consideration" = "#2ECC71",
+                               "Conversion" = "#F39C12", "Retention" = "#9B59B6")) +
+  labs(title = "Distribution of Campaign Types",
+       subtitle = paste0("Total Observations: ", sum(type_summary$Count)),
+       x = "Campaign Type", y = "Number of Observations") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)),
+                     limits = c(0, max(type_summary$Count) * 1.15)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5, color = "gray40"),
+        legend.position = "none",
+        panel.grid.major.y = element_blank())
+
+ggsave("plots/campaign_type_distribution.png", width = 10, height = 6, dpi = 300, bg = "white")
+
+#-------------------------------------
+# Conversion Rate by Campaign Type (#6)
+#-------------------------------------
+
+type_conversion <- full_preprocessed_data %>%
+  group_by(CampaignType) %>%
+  summarise(
+    Total = n(),
+    Conversions = sum(Conversion_numeric),
+    ConversionRate = mean(Conversion_numeric) * 100,
+    .groups = 'drop'
+  ) %>%
+  arrange(desc(ConversionRate))
+
+type_conversion$CampaignType <- factor(type_conversion$CampaignType,
+                                       levels = type_conversion$CampaignType)
+
+ggplot(type_conversion, aes(x = CampaignType, y = ConversionRate, fill = CampaignType)) +
+  geom_bar(stat = "identity", width = 0.7, color = "black", size = 0.5) +
+  geom_text(aes(label = paste0(round(ConversionRate, 1), "%")), 
+            vjust = -0.5, size = 5, fontface = "bold") +
+  scale_fill_manual(values = c("Awareness" = "#3498DB", "Consideration" = "#2ECC71",
+                               "Conversion" = "#F39C12", "Retention" = "#9B59B6")) +
+  labs(title = "Conversion Rate by Campaign Type",
+       subtitle = "Which funnel stages perform best?",
+       x = "Campaign Type", y = "Conversion Rate (%)") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)),
+                     limits = c(0, max(type_conversion$ConversionRate) * 1.12)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5, color = "gray40"),
+        legend.position = "none",
+        panel.grid.major.x = element_blank())
+
+ggsave("plots/conversion_by_type.png", width = 10, height = 6, dpi = 300, bg = "white")
+
+#-------------------------------------
+# Conversion Rate by Gender (#7)
+#-------------------------------------
+
+gender_conversion <- full_preprocessed_data %>%
+  group_by(Gender) %>%
+  summarise(
+    Total = n(),
+    Conversions = sum(Conversion_numeric),
+    ConversionRate = mean(Conversion_numeric) * 100,
+    .groups = 'drop'
+  )
+
+ggplot(gender_conversion, aes(x = Gender, y = ConversionRate, fill = Gender)) +
+  geom_bar(stat = "identity", width = 0.6, color = "black", size = 0.5) +
+  geom_text(aes(label = paste0(round(ConversionRate, 1), "%")), 
+            vjust = -0.5, size = 5, fontface = "bold") +
+  scale_fill_manual(values = c("Male" = "#3498DB", "Female" = "#E74C3C")) +
+  labs(title = "Conversion Rate by Gender",
+       subtitle = "Do conversion rates differ by gender?",
+       x = "Gender", y = "Conversion Rate (%)") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)),
+                     limits = c(0, max(gender_conversion$ConversionRate) * 1.12)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5, color = "gray40"),
+        legend.position = "none",
+        panel.grid.major.x = element_blank())
+
+ggsave("plots/conversion_by_gender.png", width = 8, height = 6, dpi = 300, bg = "white")
+
+#-------------------------------------
+# Conversion Rate by Age Group (#9)
+#-------------------------------------
+
+# Create age groups
+full_preprocessed_data$AgeGroup <- cut(full_preprocessed_data$Age, 
+                                       breaks = c(0, 25, 35, 45, 55, 100),
+                                       labels = c("18-25", "26-35", "36-45", "46-55", "56+"))
+
+age_conversion <- full_preprocessed_data %>%
+  group_by(AgeGroup) %>%
+  summarise(
+    Total = n(),
+    Conversions = sum(Conversion_numeric),
+    ConversionRate = mean(Conversion_numeric) * 100,
+    .groups = 'drop'
+  )
+
+ggplot(age_conversion, aes(x = AgeGroup, y = ConversionRate, fill = AgeGroup)) +
+  geom_bar(stat = "identity", width = 0.7, color = "black", size = 0.5) +
+  geom_text(aes(label = paste0(round(ConversionRate, 1), "%")), 
+            vjust = -0.5, size = 5, fontface = "bold") +
+  scale_fill_brewer(palette = "Blues") +
+  labs(title = "Conversion Rate by Age Group",
+       subtitle = "Which age groups convert better?",
+       x = "Age Group", y = "Conversion Rate (%)") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)),
+                     limits = c(0, max(age_conversion$ConversionRate) * 1.12)) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5, color = "gray40"),
+        legend.position = "none",
+        panel.grid.major.x = element_blank())
+
+ggsave("plots/conversion_by_age.png", width = 10, height = 6, dpi = 300, bg = "white")
+
+#-------------------------------------
+# Campaign Channel × Campaign Type (#10)
+#-------------------------------------
+
+channel_type_summary <- full_preprocessed_data %>%
+  group_by(CampaignChannel, CampaignType) %>%
+  summarise(Count = n(), .groups = 'drop')
+
+ggplot(channel_type_summary, aes(x = CampaignChannel, y = Count, fill = CampaignType)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black", size = 0.5) +
+  scale_fill_manual(values = c("Awareness" = "#3498DB", "Consideration" = "#2ECC71",
+                               "Conversion" = "#F39C12", "Retention" = "#9B59B6")) +
+  labs(title = "Campaign Channel × Campaign Type Distribution",
+       subtitle = "Campaign strategy patterns across channels and types",
+       x = "Campaign Channel", y = "Number of Observations",
+       fill = "Campaign Type") +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+        plot.subtitle = element_text(size = 11, hjust = 0.5, color = "gray40"),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "right",
+        panel.grid.major.x = element_blank())
+
+ggsave("plots/channel_type_cross.png", width = 12, height = 6, dpi = 300, bg = "white")
+
+#-------------------------------------
+# Conversion Rate by Channel × Type (#11)
+#-------------------------------------
+
+channel_type_conversion <- full_preprocessed_data %>%
+  group_by(CampaignChannel, CampaignType) %>%
+  summarise(
+    Total = n(),
+    Conversions = sum(Conversion_numeric),
+    ConversionRate = mean(Conversion_numeric) * 100,
+    .groups = 'drop'
+  )
+
+ggplot(channel_type_conversion, aes(x = CampaignChannel, y = ConversionRate, fill = CampaignType)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black", size = 0.5) +
+  geom_text(aes(label = paste0(round(ConversionRate, 1), "%")),
+            position = position_dodge(width = 0.9),
+            vjust = -0.5, size = 3) +
+  scale_fill_manual(values = c("Awareness" = "#3498DB", "Consideration" = "#2ECC71",
+                               "Conversion" = "#F39C12", "Retention" = "#9B59B6")) +
+  labs(title = "Conversion Rate by Campaign Channel × Campaign Type",
+       subtitle = "Best performing channel-type combinations",
+       x = "Campaign Channel", y = "Conversion Rate (%)",
+       fill = "Campaign Type") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+        plot.subtitle = element_text(size = 11, hjust = 0.5, color = "gray40"),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "right",
+        panel.grid.major.x = element_blank())
+
+ggsave("plots/conversion_channel_type.png", width = 12, height = 6, dpi = 300, bg = "white")
+
+#-------------------------------------
+# Point-Biserial Correlations (#17)
+#-------------------------------------
+
+# Get numeric columns (exclude categorical and derived columns)
+numeric_cols <- c("Age", "Income", "AdSpend", "ClickThroughRate", "ConversionRate",
+                  "WebsiteVisits", "PagesPerVisit", "TimeOnSite", "SocialShares",
+                  "EmailOpens", "EmailClicks", "PreviousPurchases", "LoyaltyPoints")
+
+# Calculate correlations with Conversion
+correlations <- data.frame(
+  Variable = numeric_cols,
+  Correlation = sapply(numeric_cols, function(col) {
+    cor(full_preprocessed_data[[col]], full_preprocessed_data$Conversion_numeric, 
+        use = "complete.obs")
+  })
+) %>%
+  arrange(desc(abs(Correlation)))
+
+correlations$Variable <- factor(correlations$Variable, levels = correlations$Variable)
+
+# Print correlation summary
+cat("\n=== Point-Biserial Correlations Summary ===\n")
+print(correlations)
