@@ -68,18 +68,40 @@ preprocess_data <- function(
   # Preprocessing (fit on TRAIN)
   #---------------------------------
   
+  # Imputation
   imputer <- fit_imputer(X_train)
   X_train <- apply_imputer(X_train, imputer)
   X_test  <- apply_imputer(X_test,  imputer)
   
+  # Outlier handling
   outlier_handler <- fit_outlier_handler(X_train)
   X_train <- apply_outlier_handler(X_train, outlier_handler)
   X_test  <- apply_outlier_handler(X_test,  outlier_handler)
   
+  #-----------------------------------
+  # Create FULL dataset for EDA
+  # (Before encoding & scaling)
+  #-----------------------------------
+  
+  X_full <- data %>% select(-all_of(target_col))
+  y_full <- as.factor(data[[target_col]])
+  
+  X_full <- apply_imputer(X_full, imputer)
+  X_full <- apply_outlier_handler(X_full, outlier_handler)
+  
+  full_processed_data <- X_full
+  full_processed_data[[target_col]] <- y_full
+  
+  #---------------------------------
+  # Continue MODEL preprocessing
+  #---------------------------------
+  
+  # Encoding (for modeling only)
   encoder <- fit_encoder(X_train)
   X_train <- apply_encoder(X_train, encoder)
   X_test  <- apply_encoder(X_test,  encoder)
   
+  # Scaling (glmnet only)
   if (model_type == "glmnet") {
     scaler <- fit_scaler(X_train)
     X_train <- apply_scaler(X_train, scaler)
@@ -88,28 +110,11 @@ preprocess_data <- function(
     scaler <- NULL
   }
   
+  # Matrix conversion
   if (model_type %in% c("glmnet", "xgb")) {
     X_train <- as.matrix(X_train)
     X_test  <- as.matrix(X_test)
   }
-  
-  #-----------------------------------
-  # Create FULL preprocessed dataset
-  #-----------------------------------
-  
-  X_full <- data %>% select(-all_of(target_col))
-  y_full <- as.factor(data[[target_col]])
-  
-  X_full <- apply_imputer(X_full, imputer)
-  X_full <- apply_outlier_handler(X_full, outlier_handler)
-  X_full <- apply_encoder(X_full, encoder)
-  
-  if (!is.null(scaler)) {
-    X_full <- apply_scaler(X_full, scaler)
-  }
-  
-  full_processed_data <- as.data.frame(X_full)
-  full_processed_data[[target_col]] <- y_full
   
   #-----------------------------------
   # Class weights
