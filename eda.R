@@ -9,9 +9,6 @@ library(dplyr)
 library(ggplot2)
 library(scales)
 
-# -----------------------------
-# Load utils (reuse your functions!)
-# -----------------------------
 source("utils/utils_preprocessing.R")
 source("01_preprocessing.R")
 # -----------------------------
@@ -93,5 +90,6 @@ ggplot(eda_data, aes(x =Conversion, y = Income)) +
 ggplot(eda_data, aes(x = Conversion, y = AdSpend)) +
   geom_boxplot(fill = "grey") +
   labs(title = "Ad Spend vs Conversion") 
+
 
 
