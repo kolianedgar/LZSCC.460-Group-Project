@@ -137,7 +137,6 @@ ggsave("plots/07_strategy_heatmap.png", plot = p7)
 
 # Plot 8: Engagement Scatter Plot (Time on Site vs Pages per Visit)
 # To see if Browsers (high engagement) are actually Buyers.
-# Alpha (transparency) is used to handle overlapping points.
 p8 <- ggplot(df_eda, aes(x = TimeOnSite, y = PagesPerVisit, color = as.factor(Conversion))) +
   geom_point(alpha = 0.5, size = 2) +
   labs(title = "Engagement Analysis: Time vs Pages",
@@ -153,7 +152,6 @@ ggsave("plots/08_engagement_scatter.png", plot = p8)
 
 # Plot 9: Loyalty vs Income Density
 # To understand the profile of High-Value Customers.
-# This shows where the mass of converting customers is located.
 p9 <- ggplot(df_eda, aes(x = Income, y = LoyaltyPoints)) +
   geom_bin2d(bins = 30) +
   scale_fill_viridis_c() +
@@ -184,7 +182,6 @@ ggsave("plots/10_adspend_overall.png", plot = p10)
 
 # Plot 11: AdSpend Impact by Channel (Faceted Boxplot)
 # To identify WHICH channel requires high spend to convert.
-# If the 1 box is much higher than "0", money is a key driver for that channel.
 p11 <- ggplot(df_eda, aes(x = as.factor(Conversion), y = AdSpend, fill = as.factor(Conversion))) +
   geom_boxplot() +
   facet_wrap(~CampaignChannel) +
@@ -201,7 +198,6 @@ ggsave("plots/11_adspend_by_channel.png", plot = p11)
 
 # Plot 12: AdSpend ROI Analysis (Binning)
 # To see if spending TOO much has diminishing returns.
-# We group AdSpend into 5 bins (Low to High) and calculate conversion rate.
 adspend_bins <- df_eda %>%
   mutate(SpendGroup = cut_number(AdSpend, n = 5, labels = c("Very Low", "Low", "Medium", "High", "Very High"))) %>%
   group_by(SpendGroup) %>%
