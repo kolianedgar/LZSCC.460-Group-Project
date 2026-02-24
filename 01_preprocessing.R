@@ -88,7 +88,6 @@ preprocess_data <- function(
   
   X_full <- apply_imputer(X_full, imputer)
   X_full <- apply_outlier_handler(X_full, outlier_handler)
-  
   full_processed_data <- X_full
   full_processed_data[[target_col]] <- y_full
   

@@ -32,7 +32,16 @@ prep_glmnet <- preprocess_data(
 )
 
 full_preprocessed_data <- prep_glmnet$full_processed_data
+X_train <- prep_glmnet$X_train
 
+summary(full_preprocessed_data$Income)
+
+summary(X_train)
+
+ggplot(full_preprocessed_data, aes(x = Income)) +
+  geom_histogram(bins = 30)
+
+mean(full_preprocessed_data$Income)
 #-------------------------
 # Conversion Distribution
 #-------------------------
