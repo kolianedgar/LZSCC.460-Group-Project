@@ -170,6 +170,7 @@ tuned_confmatrix <- confusionMatrix(
   positive  = "yes"
 )
 
+#report for TUNED RF model (before threshold tuning)
 cat("\n================ TUNED RF (Default threshold) ================\n")
 cat("\n=== TUNED RF ===\n")
 cat("Balanced Accuracy:", round(tuned_confmatrix$byClass["Balanced Accuracy"], 4),"\n")
@@ -199,6 +200,7 @@ cm_02 <- confusionMatrix(pred_02, test_df$Conversion, positive = "yes")
 cm_05 <- confusionMatrix(pred_05, test_df$Conversion, positive = "yes")
 cm_08 <- confusionMatrix(pred_08, test_df$Conversion, positive = "yes")
 
+#REPORT FOR TUNED RF MODEL (FINAL MODEL)
 cat("\n THRESHOLD t = 0.2\n")
 cat("Balanced Accuracy",cm_02$byClass["Balanced Accuracy"],"\n")
 cat("Recall:",cm_02$byClass["Sensitivity"],"\n")
@@ -231,3 +233,4 @@ cat("F1:",cm_08$byClass["F1"],"\n")
 #This combination significantly improved the balance between sensitivity and specificity,
 
 #achieving the highest balanced accuracy.
+
