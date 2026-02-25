@@ -170,8 +170,13 @@ tuned_confmatrix <- confusionMatrix(
   positive  = "yes"
 )
 
-cat("\n================ TUNED RF (Default threshold, Test) ================\n")
-print(tuned_confmatrix)
+cat("\n================ TUNED RF (Default threshold) ================\n")
+cat("\n=== TUNED RF ===\n")
+cat("Balanced Accuracy:", round(tuned_confmatrix$byClass["Balanced Accuracy"], 4),"\n")
+cat("Recall:", round(tuned_confmatrix$byClass["Sensitivity"], 4),"\n")
+cat("Specificity:", round(tuned_confmatrix$byClass["Specificity"], 4),"\n")
+cat("F1:", round(tuned_confmatrix$byClass["F1"], 4),"\n")
+cat("AUC-ROC:", round(best_ROC, 4),"\n")
 
 # ============================================================
 # tuning of THRESHOLDS t = 0.2, 0.5, 0.8
@@ -224,4 +229,5 @@ cat("F1:",cm_08$byClass["F1"],"\n")
 #ntree = 500, nodesize = 10, mtry = 2 and threshold = 0.8.
 
 #This combination significantly improved the balance between sensitivity and specificity,
+
 #achieving the highest balanced accuracy.
