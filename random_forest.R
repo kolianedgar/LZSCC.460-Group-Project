@@ -242,7 +242,7 @@ cat("F1:",cm_08$byClass["F1"],"\n")
 importance_matrix <- importance(best_model$finalModel)
 
 imp_df <- data.frame(
-  Feature = rownames(imp),
+  Feature = rownames(importance_matrix),
   Importance = importance_matrix[,"MeanDecreaseGini"]
 )
 imp_df <- imp_df %>%
@@ -255,6 +255,27 @@ ggplot(imp_df[1:15,], aes(x = reorder(Feature, Importance), y = Importance)) +
     y = "Mean Decrease Gini"
   ) +
   theme_minimal()
+
+#ROC CURVE PLOT
+png("roc_curve.png")
+roc_curve <- roc(test_df$Conversion, tuned_prob)
+plot(roc_curve,
+     col = "blue",
+     main = "ROC Curve - Tuned Random Forest")
+dev.off()
+
+#ROC-AUC CURVE PLOT
+png("auc_roc_curve.png")
+auc_value <- auc(roc_curve)
+plot(roc_curve,
+     col = "blue",
+     lwd = 2,
+     legacy.axes = TRUE,
+     main = paste("ROC Curve (AUC =", round(auc_value, 3), ")"))
+
+abline(a = 0, b = 1, lty = 2, col = "grey")
+dev.off()
+
 
 
 
