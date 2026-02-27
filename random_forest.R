@@ -234,3 +234,28 @@ cat("F1:",cm_08$byClass["F1"],"\n")
 
 #achieving the highest balanced accuracy.
 
+
+#VISUALISATION
+
+#Importance of Features
+#The plot shows the importance of each feature on predicting the target variable(conversion)
+importance_matrix <- importance(best_model$finalModel)
+
+imp_df <- data.frame(
+  Feature = rownames(imp),
+  Importance = importance_matrix[,"MeanDecreaseGini"]
+)
+imp_df <- imp_df %>%
+  arrange(desc(Importance))
+ggplot(imp_df[1:15,], aes(x = reorder(Feature, Importance), y = Importance)) +
+  geom_col(fill = "grey") +
+  labs(
+    title = "Top 15 Features in Random Forest",
+    x = "",
+    y = "Mean Decrease Gini"
+  ) +
+  theme_minimal()
+
+
+
+
