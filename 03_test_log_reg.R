@@ -98,6 +98,8 @@ final_model <- glmnet(
   standardize = FALSE
 )
 
+coef_opt <- coef(cv_models, s=)
+rownames(final_model)
 #------------------------------
 # Test evaluation (ONLY here)
 #------------------------------
@@ -151,3 +153,47 @@ cat("Precision (PPV):         ", round(cm$byClass["Pos Pred Value"],           4
 cat("F1 Score:                ", round(cm$byClass["F1"],                       4), "\n")
 cat("AUC-ROC:                 ", round(auc_roc,                                4), "\n")
 cat("AUC-PR:                  ", round(auc_pr,                                 4), "\n")
+
+# Extract coefficients at best lambda
+coef_mat <- coef(final_model, s = best_lambda)
+coef_df <- data.frame(
+  Feature    = rownames(coef_mat),
+  Coefficient = as.numeric(coef_mat)
+) |>
+  filter(Feature != "(Intercept)", Coefficient != 0) |>  # drop intercept & zero-coef (elastic-net zeroed)
+  mutate(
+    Direction = ifelse(Coefficient > 0, "Positive", "Negative"),
+    Feature   = reorder(Feature, abs(Coefficient))
+  )
+
+ggplot(coef_df, aes(x = abs(Coefficient), y = Feature, fill = Direction)) +
+  geom_col(width = 0.7) +
+  geom_text(
+    aes(label = round(abs(Coefficient), 3)),
+    hjust = -0.15,
+    size  = 3.5,
+    color = "grey30"
+  ) +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.15))) +  # add right margin for labels
+  geom_vline(xintercept = 0, linewidth = 0.4, color = "grey40") +
+  scale_fill_manual(
+    values = c("Positive" = "#2196F3", "Negative" = "#E53935"),
+    name   = "Effect on\nConversion"
+  ) +
+  labs(
+    title    = "Elastic-Net Feature Importance",
+    subtitle = paste0("Non-zero coefficients at \u03bb = ", round(best_lambda, 4),
+                      "  (\u03b1 = ", round(best_alpha, 4), ")"),
+    x        = "Absolute Coefficient Value",
+    y        = NULL
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title         = element_text(face = "bold", size = 15),
+    plot.subtitle      = element_text(color = "grey50", size = 11),
+    legend.position    = "right",
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor   = element_blank()
+  )
+
+ggsave("plots/feature_importance.png", width = 8, height = 6, dpi = 150)
