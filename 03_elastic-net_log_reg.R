@@ -196,4 +196,4 @@ ggplot(coef_df, aes(x = abs(Coefficient), y = Feature, fill = Direction)) +
     panel.grid.minor   = element_blank()
   )
 
-ggsave("plots/feature_importance.png", width = 8, height = 6, dpi = 150)
+ggsave("plots/plots logistic regression/feature_importance.png", width = 8, height = 6, dpi = 150)
