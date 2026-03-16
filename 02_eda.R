@@ -50,7 +50,7 @@ ggplot(counts_df, aes(x = Conversion, y = percent, fill = Conversion)) +
     y = "Percentage of Customers"
   ) 
 
-ggsave("plots/EDA/conversion_distribution.png", width = 8, height = 6, dpi = 300, bg = "white")
+ggsave("plots - Erato/EDA/conversion_distribution.png", width = 8, height = 6, dpi = 300, bg = "white")
 #----------------------------
 # Conversion vs Gender
 #----------------------------
@@ -59,7 +59,7 @@ ggplot(eda_data, aes(x = Gender, fill =Conversion)) +
   geom_bar(position = "fill") +
   labs(title = "Conversion Rate by Gender", y = "Proportion") 
 
-ggsave("plots/EDA/conversion_rate_by_gender.png", width = 8, height = 6, dpi = 300, bg = "white")
+ggsave("plots - Erato/EDA/conversion_rate_by_gender.png", width = 8, height = 6, dpi = 300, bg = "white")
 #--------------------------------------  
 # Campaign Channel vs Conversion
 #---------------------------------------
@@ -69,7 +69,7 @@ ggplot(eda_data, aes(x = CampaignChannel, fill =Conversion)) +
   scale_y_continuous(labels = percent_format()) +
   labs(title = "Conversion Rate by Campaign Channel", y = "Proportion") 
 
-ggsave("plots/EDA/conversion_rate_by_campaign_channel.png", width = 8, height = 6, dpi = 300, bg = "white")
+ggsave("plots - Erato/EDA/conversion_rate_by_campaign_channel.png", width = 8, height = 6, dpi = 300, bg = "white")
 
 #---------------------------------------------
 # Engagement behaviour Time on site vs Conversion
@@ -79,14 +79,14 @@ ggplot(eda_data, aes(x =Conversion, y = TimeOnSite)) +
   geom_boxplot(fill = "grey") +
   labs(title = "Time on Site vs Conversion") 
 
-ggsave("plots/EDA/time_on_site_vs_conversion.png", width = 8, height = 6, dpi = 300, bg = "white")
+ggsave("plots - Erato/EDA/time_on_site_vs_conversion.png", width = 8, height = 6, dpi = 300, bg = "white")
 
 
 ggplot(eda_data, aes(x =Conversion, y = PagesPerVisit)) +
   geom_boxplot(fill = "pink") +
   labs(title = "Pages per Visit vs Conversion") 
 
-ggsave("plots/EDA/pages_per_visit_vs_conversion.png", width = 8, height = 6, dpi = 300, bg = "white")
+ggsave("plots - Erato/EDA/pages_per_visit_vs_conversion.png", width = 8, height = 6, dpi = 300, bg = "white")
 
 #-------------------
 #Income & AdSpend
@@ -95,10 +95,10 @@ ggplot(eda_data, aes(x =Conversion, y = Income)) +
   geom_boxplot(fill = "yellow") +
   labs(title = "Income vs Conversion")
 
-ggsave("plots/EDA/income_vs_conversion.png", width = 8, height = 6, dpi = 300, bg = "white")
+ggsave("plots - Erato/EDA/income_vs_conversion.png", width = 8, height = 6, dpi = 300, bg = "white")
 
 ggplot(eda_data, aes(x = Conversion, y = AdSpend)) +
   geom_boxplot(fill = "grey") +
   labs(title = "Ad Spend vs Conversion") 
 
-ggsave("plots/EDA/ad_spend_vs_conversion.png", width = 8, height = 6, dpi = 300, bg = "white")
+ggsave("plots - Erato/EDA/ad_spend_vs_conversion.png", width = 8, height = 6, dpi = 300, bg = "white")
