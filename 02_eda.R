@@ -101,4 +101,4 @@ ggplot(eda_data, aes(x = Conversion, y = AdSpend)) +
   geom_boxplot(fill = "grey") +
   labs(title = "Ad Spend vs Conversion") 
 
-ggsave("plots/EDA/ad_spend_vs_conversion", width = 8, height = 6, dpi = 300, bg = "white")
+ggsave("plots/EDA/ad_spend_vs_conversion.png", width = 8, height = 6, dpi = 300, bg = "white")

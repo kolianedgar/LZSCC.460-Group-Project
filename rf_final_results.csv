@@ -1,0 +1,2 @@
+"Model","mtry","nodesize","ntree","AUC_ROC","PR_AUC","Accuracy","Balanced_Accuracy","Sensitivity","Specificity","Precision","F1"
+"Random Forest (Tuned)",4,10,500,0.802533177711494,0.946053186379494,0.905625,0.770490208792634,0.950071326676177,0.590909090909091,0.942675159235669,0.946358792184725
