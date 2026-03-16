@@ -41,7 +41,6 @@ split_data <- function(df, target, prop = 0.8, stratify = TRUE, seed = NULL) {
   )
 }
 
-
 fit_outlier_handler <- function(df, k = 1.5) {
   num_cols <- setdiff(
     names(df)[sapply(df, is.numeric)],
