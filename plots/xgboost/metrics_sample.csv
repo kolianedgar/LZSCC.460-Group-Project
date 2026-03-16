@@ -1,2 +1,2 @@
-"Model","AUC_ROC","Accuracy","Sensitivity","Specificity","F1"
-"XGBoost (sample spw)",0.8046,0.7025,0.6976,0.7374,0.8043
+"Model","AUC_ROC","PR_AUC","Accuracy","Balanced_Acc","Sensitivity","Specificity","F1"
+"XGBoost",0.8116,0.949,0.8331,0.7747,0.8524,0.697,0.8995
