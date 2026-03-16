@@ -31,8 +31,8 @@ prep_result <- preprocess_data(
 df_eda <- prep_result$full_processed_data
 
 # Create a folder for plots if it does not exist
-if (!dir.exists("plots - Athar")) {
-  dir.create("plots - Athar")
+if (!dir.exists("plots - Athar/eda")) {
+  dir.create("plots - Athar/eda")
 }
 
 # Plot 1: Target Variable Distribution (Conversion)
@@ -43,7 +43,7 @@ p1 <- ggplot(df_eda, aes(x = as.factor(Conversion), fill = as.factor(Conversion)
   theme_minimal()
 
 print(p1)
-ggsave("plots - Athar/plots/01_target_distribution.png", plot = p1)
+ggsave("plots - Athar/eda/01_target_distribution.png", plot = p1)
 
 # Plot 2: Age Distribution
 # Check the age range of customers
@@ -53,7 +53,7 @@ p2 <- ggplot(df_eda, aes(x = Age)) +
   theme_minimal()
 
 print(p2)
-ggsave("plots - Athar/plots/02_age_distribution.png", plot = p2)
+ggsave("plots - Athar/eda/02_age_distribution.png", plot = p2)
 
 
 # Plot 3: Conversion Rate by Campaign Channel
@@ -65,7 +65,7 @@ p3 <- ggplot(df_eda, aes(x = CampaignChannel, fill = as.factor(Conversion))) +
   theme_minimal()
 
 print(p3)
-ggsave("plots - Athar/plots/03_conversion_by_channel.png", plot = p3)
+ggsave("plots - Athar/eda/03_conversion_by_channel.png", plot = p3)
 
 
 # Plot 4: Income vs Conversion
@@ -76,7 +76,7 @@ p4 <- ggplot(df_eda, aes(x = as.factor(Conversion), y = Income, fill = as.factor
   theme_minimal()
 
 print(p4)
-ggsave("plots - Athar/plots/04_income_vs_conversion.png", plot = p4)
+ggsave("plots - Athar/eda/04_income_vs_conversion.png", plot = p4)
 
 # Plot 5: Time On Site vs Conversion
 # Does time spent on the website affect conversion?
@@ -86,7 +86,7 @@ p5 <- ggplot(df_eda, aes(x = as.factor(Conversion), y = TimeOnSite, fill = as.fa
   theme_minimal()
 
 print(p5)
-ggsave("plots - Athar/plots/05_time_vs_conversion.png", plot = p5)
+ggsave("plots - Athar/eda/05_time_vs_conversion.png", plot = p5)
 
 
 # Select only numeric columns for correlation
@@ -108,7 +108,7 @@ p6 <- ggcorrplot(cor_matrix,
                  title = "Correlation Matrix of Numeric Features")
 
 print(p6)
-ggsave("plots - Athar/plots/06_correlation_heatmap.png", plot = p6)
+ggsave("plots - Athar/eda/06_correlation_heatmap.png", plot = p6)
 
 
 # Plot 7: Campaign Channel x Campaign Type Heatmap
@@ -132,7 +132,7 @@ p7 <- ggplot(heatmap_data, aes(x = CampaignChannel, y = CampaignType, fill = Con
   theme_minimal()
 
 print(p7)
-ggsave("plots - Athar/plots/07_strategy_heatmap.png", plot = p7)
+ggsave("plots - Athar/eda/07_strategy_heatmap.png", plot = p7)
 
 
 # Plot 8: Engagement Scatter Plot (Time on Site vs Pages per Visit)
@@ -147,7 +147,7 @@ p8 <- ggplot(df_eda, aes(x = TimeOnSite, y = PagesPerVisit, color = as.factor(Co
   theme(legend.position = "top")
 
 print(p8)
-ggsave("plots - Athar/plots/08_engagement_scatter.png", plot = p8)
+ggsave("plots - Athar/eda/08_engagement_scatter.png", plot = p8)
 
 
 # Plot 9: Loyalty vs Income Density
@@ -162,8 +162,7 @@ p9 <- ggplot(df_eda, aes(x = Income, y = LoyaltyPoints)) +
   theme_minimal()
 
 print(p9)
-ggsave("plots - Athar/plots/09_loyalty_income_density.png", plot = p9)
-
+ggsave("plots - Athar/eda/09_loyalty_income_density.png", plot = p9)
 
 # Plot 10: AdSpend Distribution by Conversion (Overall)
 # To check if converted users generally cost more to acquire.
@@ -177,7 +176,7 @@ p10 <- ggplot(df_eda, aes(x = as.factor(Conversion), y = AdSpend, fill = as.fact
   theme(legend.position = "none")
 
 print(p10)
-ggsave("plots - Athar/plots/10_adspend_overall.png", plot = p10)
+ggsave("plots - Athar/eda/10_adspend_overall.png", plot = p10)
 
 
 # Plot 11: AdSpend Impact by Channel (Faceted Boxplot)
@@ -193,7 +192,7 @@ p11 <- ggplot(df_eda, aes(x = as.factor(Conversion), y = AdSpend, fill = as.fact
   theme(legend.position = "none")
 
 print(p11)
-ggsave("plots - Athar/plots/11_adspend_by_channel.png", plot = p11)
+ggsave("plots - Athar/eda/11_adspend_by_channel.png", plot = p11)
 
 
 # Plot 12: AdSpend ROI Analysis (Binning)
@@ -217,4 +216,4 @@ p12 <- ggplot(adspend_bins, aes(x = AvgSpend, y = ConversionRate)) +
   theme_minimal()
 
 print(p12)
-ggsave("plots - Athar/plots/12_adspend_roi_curve.png", plot = p12)
+ggsave("plots - Athar/eda/12_adspend_roi_curve.png", plot = p12)
