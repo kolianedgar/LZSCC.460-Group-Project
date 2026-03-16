@@ -22,6 +22,7 @@ library(ggplot2)        # For creating all our plots like feature importance
 library(SHAPforxgboost) # For computing SHAP values that explain individual predictions
 
 
+<<<<<<< HEAD
 # Setting the working directory so R knows where to find our files
 # All file paths after this will be relative to this folder
 setwd("C:/Users/sejdi/Desktop/Lancaster University Masters - Leipzig/Data Science Fundamentals/LZSCC.460-Group-Project")
@@ -30,13 +31,21 @@ setwd("C:/Users/sejdi/Desktop/Lancaster University Masters - Leipzig/Data Scienc
 # utils_preprocessing.R has all the individual preprocessing steps like imputation and encoding
 # utils.R has helper functions like set_script_wd()
 # 01_preprocessing.R has the main preprocess_data() function that runs the full pipeline
+=======
+## Setup Stage
+
+>>>>>>> f2ce2e89215b64a435bc5dd2b4011d8edd51b141
 source("utils/utils_preprocessing.R")
 source("utils/utils.R")
 source("01_preprocessing.R")
 
+<<<<<<< HEAD
 # Creating the output folder for all XGBoost plots and results
 # recursive = TRUE means it will create both plots/ and plots/xgboost/ if needed
 if (!dir.exists("plots/xgboost")) dir.create("plots/xgboost", recursive = TRUE)
+=======
+if (!dir.exists("plots - Enes/xgboost")) dir.create("plots - Enes/xgboost", recursive = TRUE)
+>>>>>>> f2ce2e89215b64a435bc5dd2b4011d8edd51b141
 
 
 # Loading the raw dataset and running it through preprocessing
@@ -188,8 +197,12 @@ run_tuning <- function(dtrain, search_space) {
 # Running the tuning process and storing the results
 tune <- run_tuning(dtrain, search_space)
 
+<<<<<<< HEAD
 # Printing the best hyperparameters found
 print(tune$best)
+=======
+write.csv(tune$results, "plots - Enes/xgboost/tuning_results_sample.csv", row.names = FALSE)
+>>>>>>> f2ce2e89215b64a435bc5dd2b4011d8edd51b141
 
 
 # Building the final model using the best hyperparameters found during tuning
@@ -269,11 +282,17 @@ metrics <- data.frame(
   Specificity  = round(as.numeric(eval_result$cm$byClass["Specificity"]), 4),
   F1           = round(as.numeric(eval_result$cm$byClass["F1"]), 4)
 )
+<<<<<<< HEAD
 
 print(metrics)
 print(eval_result$cm$table)
 
 write.csv(metrics, "plots/xgboost/metrics_sample.csv", row.names = FALSE)
+=======
+cat("\n=== METRICS ===\n")
+print(metrics, row.names = FALSE)
+write.csv(metrics, "plots - Enes/xgboost/metrics_sample.csv", row.names = FALSE)
+>>>>>>> f2ce2e89215b64a435bc5dd2b4011d8edd51b141
 
 
 # Extracting gain-based feature importance from the trained model
@@ -295,7 +314,7 @@ p_imp <- ggplot(imp_top, aes(x = Feature, y = Gain)) +
   geom_col(fill = "#2563eb") + coord_flip() +
   labs(title = "Feature Importance - XGBoost", x = NULL, y = "Gain") +
   theme_minimal()
-ggsave("plots/xgboost/importance_sample.png", p_imp, width = 10, height = 6, dpi = 150)
+ggsave("plots - Enes/xgboost/importance_sample.png", p_imp, width = 10, height = 6, dpi = 150)
 
 
 # Computing SHAP values for every customer in the training set
@@ -315,9 +334,49 @@ shap_long <- shap.prep(shap_contrib = shap$shap_score,
 # Dots to the left mean it pushed away from conversion
 # The colour shows whether the actual feature value was high (purple) or low (yellow)
 p_shap <- shap.plot.summary(shap_long) +
+<<<<<<< HEAD
   ggtitle("SHAP Summary - XGBoost") + theme_minimal()
 ggsave("plots/xgboost/shap_sample.png", p_shap, width = 10, height = 7, dpi = 150)
+=======
+  ggtitle("SHAP Summary - XGBoost (sample spw)") + theme_minimal()
+ggsave("plots - Enes/xgboost/shap_sample.png", p_shap, width = 10, height = 7, dpi = 150)
+>>>>>>> f2ce2e89215b64a435bc5dd2b4011d8edd51b141
 
 # Printing the top 10 features ranked by their average absolute SHAP value
 # This is another way to rank features - by average impact on predictions
 print(head(sort(shap$mean_shap_score, decreasing = TRUE), 10))
+<<<<<<< HEAD
+=======
+
+
+## Visualisation Stage
+
+# ROC Curve
+png("plots - Enes/xgboost/roc_sample.png", width = 800, height = 600)
+plot(eval_result$roc, col = "#2563eb", lwd = 2,
+     main = sprintf("ROC Curve - XGBoost (sample spw, AUC=%.3f)", auc(eval_result$roc)))
+abline(a = 0, b = 1, lty = 2, col = "grey50")
+dev.off()
+
+# Predicted probability distribution
+p_probs <- ggplot(
+  data.frame(prob = eval_result$probs, actual = factor(y_test)),
+  aes(x = prob, fill = actual)
+) +
+  geom_histogram(bins = 50, alpha = 0.6, position = "identity") +
+  scale_fill_manual(values = c("0" = "#ef4444", "1" = "#2563eb"),
+                    labels = c("0" = "Non-converter", "1" = "Converter")) +
+  labs(title = "Predicted Probability Distribution - XGBoost (sample spw)",
+       x = "P(Conversion = 1)", y = "Count", fill = "Actual") +
+  theme_minimal()
+ggsave("plots - Enes/xgboost/probability_distribution_sample.png", p_probs, width = 9, height = 5, dpi = 150)
+
+
+## Save Stage
+
+xgb.save(model, "plots - Enes/xgboost/model_sample.json")
+
+cat("\n=== COMPLETE ===\n")
+cat(sprintf("scale_pos_weight used: %.4f (n_neg / n_pos)\n", spw))
+cat("Outputs saved to plots - Enes/xgboost/\n")
+>>>>>>> f2ce2e89215b64a435bc5dd2b4011d8edd51b141
