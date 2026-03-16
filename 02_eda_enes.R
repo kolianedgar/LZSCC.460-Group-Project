@@ -3,11 +3,6 @@
 # ============================================================
 
 #-----------------------------------
-# Set working directory
-#-----------------------------------
-setwd("C:/Users/sejdi/Desktop/Lancaster University Masters - Leipzig/Data Science Fundamentals/LZSCC.460-Group-Project")
-
-#-----------------------------------
 # Load libraries and utilities
 #-----------------------------------
 library(ggplot2)
@@ -56,7 +51,7 @@ print(table(df$Conversion))
 #-----------------------------------
 # Output directory for plots
 #-----------------------------------
-plot_dir <- "plots/"
+plot_dir <- "plots - Enes/eda/"
 if (!dir.exists(plot_dir)) dir.create(plot_dir, recursive = TRUE)
 
 # ============================================================

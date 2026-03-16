@@ -20,13 +20,11 @@ library(SHAPforxgboost)
 
 ## Setup Stage
 
-setwd("C:/Users/sejdi/Desktop/Lancaster University Masters - Leipzig/Data Science Fundamentals/LZSCC.460-Group-Project")
-
 source("utils/utils_preprocessing.R")
 source("utils/utils.R")
 source("01_preprocessing.R")
 
-if (!dir.exists("plots/xgboost")) dir.create("plots/xgboost", recursive = TRUE)
+if (!dir.exists("plots - Enes/xgboost")) dir.create("plots - Enes/xgboost", recursive = TRUE)
 
 
 ## Importing & Preprocessing Stage
@@ -140,7 +138,7 @@ run_tuning <- function(dtrain, search_space, spw_value = NULL, label = "Model") 
 
 tune <- run_tuning(dtrain, search_space, spw_value = spw, label = "XGBoost (sample spw)")
 
-write.csv(tune$results, "plots/xgboost/tuning_results_sample.csv", row.names = FALSE)
+write.csv(tune$results, "plots - Enes/xgboost/tuning_results_sample.csv", row.names = FALSE)
 
 
 ## Training Final Model Stage
@@ -197,7 +195,7 @@ metrics <- data.frame(
 )
 cat("\n=== METRICS ===\n")
 print(metrics, row.names = FALSE)
-write.csv(metrics, "plots/xgboost/metrics_sample.csv", row.names = FALSE)
+write.csv(metrics, "plots - Enes/xgboost/metrics_sample.csv", row.names = FALSE)
 
 
 ## Feature Importance Stage
@@ -214,7 +212,7 @@ p_imp <- ggplot(imp_top, aes(x = Feature, y = Gain)) +
   geom_col(fill = "#2563eb") + coord_flip() +
   labs(title = "Feature Importance - XGBoost (sample spw)", x = NULL, y = "Gain") +
   theme_minimal()
-ggsave("plots/xgboost/importance_sample.png", p_imp, width = 10, height = 6, dpi = 150)
+ggsave("plots - Enes/xgboost/importance_sample.png", p_imp, width = 10, height = 6, dpi = 150)
 
 
 ## SHAP Interpretability Stage
@@ -227,7 +225,7 @@ shap_long <- shap.prep(shap_contrib = shap$shap_score,
 
 p_shap <- shap.plot.summary(shap_long) +
   ggtitle("SHAP Summary - XGBoost (sample spw)") + theme_minimal()
-ggsave("plots/xgboost/shap_sample.png", p_shap, width = 10, height = 7, dpi = 150)
+ggsave("plots - Enes/xgboost/shap_sample.png", p_shap, width = 10, height = 7, dpi = 150)
 
 cat("\nTop 10 by mean |SHAP|:\n")
 print(head(sort(shap$mean_shap_score, decreasing = TRUE), 10))
@@ -236,7 +234,7 @@ print(head(sort(shap$mean_shap_score, decreasing = TRUE), 10))
 ## Visualisation Stage
 
 # ROC Curve
-png("plots/xgboost/roc_sample.png", width = 800, height = 600)
+png("plots - Enes/xgboost/roc_sample.png", width = 800, height = 600)
 plot(eval_result$roc, col = "#2563eb", lwd = 2,
      main = sprintf("ROC Curve - XGBoost (sample spw, AUC=%.3f)", auc(eval_result$roc)))
 abline(a = 0, b = 1, lty = 2, col = "grey50")
@@ -253,13 +251,13 @@ p_probs <- ggplot(
   labs(title = "Predicted Probability Distribution - XGBoost (sample spw)",
        x = "P(Conversion = 1)", y = "Count", fill = "Actual") +
   theme_minimal()
-ggsave("plots/xgboost/probability_distribution_sample.png", p_probs, width = 9, height = 5, dpi = 150)
+ggsave("plots - Enes/xgboost/probability_distribution_sample.png", p_probs, width = 9, height = 5, dpi = 150)
 
 
 ## Save Stage
 
-xgb.save(model, "plots/xgboost/model_sample.json")
+xgb.save(model, "plots - Enes/xgboost/model_sample.json")
 
 cat("\n=== COMPLETE ===\n")
 cat(sprintf("scale_pos_weight used: %.4f (n_neg / n_pos)\n", spw))
-cat("Outputs saved to plots/xgboost/\n")
+cat("Outputs saved to plots - Enes/xgboost/\n")
