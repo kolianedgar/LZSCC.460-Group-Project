@@ -7,6 +7,7 @@ library(caret)
 library(dplyr)
 library(pROC)
 library(PRROC)
+
 source("utils/utils.R")
 source("01_preprocessing.R")
 
@@ -283,7 +284,7 @@ imp_df <- data.frame(
 imp_df <- imp_df %>%
   arrange(desc(Importance))
 
-png("plots/Random Forest/featureImportance4.png")
+png("plots - Erato/Random Forest/featureImportance4.png")
 ggplot(imp_df[1:15,], aes(x = reorder(Feature, Importance), y = Importance)) +
   geom_col(fill = "grey") +
   coord_flip()+
@@ -299,7 +300,7 @@ dev.off()
 
 #PR CURVE
 
-png("plots/Random Forest/pr_auc_curve_rf1.png")
+png("plots - Erato/Random Forest/pr_auc_curve_rf1.png")
 plot(pr_obj,
      col="blue",
      lwd=2,
@@ -315,7 +316,7 @@ dev.off()
 
 
 #ROC-AUC CURVE PLOT
-png("plots/Random Forest/auc_roc_rf.png")
+png("plots - Erato/Random Forest/auc_roc_rf.png")
 auc_value <- auc(roc_tuned)
 plot(roc_tuned,
      col = "blue",
