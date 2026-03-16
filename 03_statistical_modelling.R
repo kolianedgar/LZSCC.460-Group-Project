@@ -55,9 +55,9 @@ cat(sprintf("Specificity:       %.4f\n", cm$byClass["Specificity"]))
 cat(sprintf("Balanced Accuracy: %.4f\n", cm$byClass["Balanced Accuracy"]))
 cat(sprintf("AUC:               %.4f\n", auc(roc_obj)))
 
-if (!dir.exists("plots")) dir.create("plots")
+if (!dir.exists("plots - Athar/statistical model")) dir.create("plots - Athar/statistical model")
 
-png("plots/14_roc_curve.png", width = 800, height = 800, res = 150)
+png("plots - Athar/statistical model/14_roc_curve.png", width = 800, height = 800, res = 150)
 plot(roc_obj, col = "steelblue", lwd = 2, main = "ROC Curve: Logistic Regression")
 abline(a = 1, b = -1, lty = 2, col = "darkgray")
 dev.off()
@@ -91,4 +91,4 @@ p <- ggplot(results, aes(x = reorder(term, OR), y = OR, color = is_sig)) +
   theme_minimal() +
   theme(legend.position = "none", panel.grid.minor = element_blank())
 
-ggsave("plots/13_statistical_drivers_forest.png", plot = p, width = 8, height = 7, bg = "white")
+ggsave("plots - Athar/statistical model/13_statistical_drivers_forest.png", plot = p, width = 8, height = 7, bg = "white")
