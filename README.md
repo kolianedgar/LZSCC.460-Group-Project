@@ -16,11 +16,17 @@ What factors influence customer conversion, and how accurately can conversion be
 
 ## 📁 Structure
 ├── 01_preprocessing/
+
 ├── 02_eda/
+
 ├── 03_statistical_modelling/
+
 ├── 04_modelling/
+
 ├── utils/
+
 ├── marketing.csv
+
 └── README.md
 
 
