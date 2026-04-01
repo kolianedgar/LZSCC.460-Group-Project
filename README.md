@@ -45,7 +45,7 @@ Run scripts in order:
 
 ## 🛠️ Requirements
 R (≥ 4.0) with packages:
-`tidyverse`, `ggplot2`, `caret`, `glmnet`, `randomForest`, `xgboost`
+`dplyr`, `ggplot2`, `caret`, `pROC`, `PRROC`, `glmnet`, `randomForest`, `xgboost`, `broom` 
 
 ## 👥 Contributors
 - Athar Ahmad Hatim Syed (https://github.com/SHINSYUN786)
