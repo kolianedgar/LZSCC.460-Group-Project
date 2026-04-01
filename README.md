@@ -6,7 +6,8 @@ Group project for **LZSCC.460 – Data Science Fundamentals**.
 This project analyzes a digital marketing dataset to identify key drivers of customer conversion and build predictive models for future campaigns.
 
 ## ❓ Research Question
-What factors influence customer conversion, and how accurately can conversion be predicted?
+1. What drives customer conversion?
+2. Is predicting future conversions possible using the available customer data?
 
 ## 🧩 Objectives
 1. **Preprocessing** – Clean data, handle missing values, detect biases  
